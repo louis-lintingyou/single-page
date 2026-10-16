@@ -1,0 +1,465 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>單板體能 12 週</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: a lift-ticket header, then a sticky bar (day tabs + gym/home switch) over a single column of exercise cards. Phases use trail difficulty markers. */
+:root {
+  --bg: #EDF2F5;
+  --surface: #FFFFFF;
+  --fg: #0F1B25;
+  --muted: #536472;
+  --line: #D2DDE4;
+  --accent: #D9531E;
+  --accent-soft: #FBE6DC;
+  --green: #17925A;
+  --blue: #1F5FD1;
+  --diamond: #0F1B25;
+  --chip: #E1E9EE;
+  --font-display: "Archivo", "Noto Sans TC", system-ui, sans-serif;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1117; --surface: #121D26; --fg: #E5EDF2; --muted: #93A5B3; --line: #223240;
+    --accent: #FF7B42; --accent-soft: #3A2117; --green: #3CC486; --blue: #6C9BFF; --diamond: #E5EDF2; --chip: #1A2833;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1117; --surface: #121D26; --fg: #E5EDF2; --muted: #93A5B3; --line: #223240;
+  --accent: #FF7B42; --accent-soft: #3A2117; --green: #3CC486; --blue: #6C9BFF; --diamond: #E5EDF2; --chip: #1A2833;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap {
+  max-width: 720px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Header */
+header.hero { padding-block: 28px 20px; }
+.ticket {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  display: grid; grid-template-columns: 1fr auto; overflow: hidden;
+}
+.ticket-main { padding: 20px 20px 18px; min-width: 0; }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+h1 {
+  font-family: var(--font-display); font-weight: 900; font-stretch: 125%;
+  font-size: clamp(30px, 8vw, 44px); line-height: 1.05; margin: 6px 0 10px; text-wrap: balance; letter-spacing: -.01em;
+}
+.hero p { margin: 0; color: var(--muted); max-width: 52ch; }
+.ticket-stub {
+  border-left: 2px dashed var(--line); padding: 20px 18px; display: grid; align-content: center; justify-items: center; gap: 2px;
+  background: var(--accent); color: #fff; text-align: center;
+}
+.ticket-stub b { font-family: var(--font-display); font-stretch: 125%; font-weight: 900; font-size: 40px; line-height: 1; }
+.ticket-stub span { font-size: 12px; letter-spacing: .08em; }
+
+.schedule { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.schedule span {
+  font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--chip); color: var(--fg);
+}
+.schedule span b { font-family: var(--font-mono); margin-right: 4px; }
+
+/* Phase selector */
+section.phases { padding-block: 4px 18px; }
+h2 {
+  font-family: var(--font-display); font-stretch: 112%; font-weight: 800; font-size: 18px; margin: 0 0 10px;
+}
+.phase-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.phase-btn {
+  font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 8px; cursor: pointer; display: grid; justify-items: center; gap: 4px; text-align: center; min-width: 0;
+}
+.phase-btn small { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.phase-btn strong { font-size: 13px; font-weight: 700; }
+.phase-btn[aria-pressed="true"] { border-color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg); }
+.phase-btn:focus-visible, .tab:focus-visible, .mode button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mark { width: 18px; height: 18px; display: inline-block; }
+.mark.green { border-radius: 50%; background: var(--green); }
+.mark.blue { background: var(--blue); border-radius: 2px; }
+.mark.black { background: var(--diamond); transform: rotate(45deg) scale(.82); border-radius: 2px; }
+.mark.taper { border-radius: 50%; border: 3px solid var(--muted); }
+.phase-note {
+  margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+}
+.phase-note ul { margin: 0; padding-left: 1.2em; }
+.phase-note li + li { margin-top: 2px; }
+
+/* Sticky bar */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.bar .wrap { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding-block: 10px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 6px; }
+.tab {
+  font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  border-radius: 10px; padding: 6px 12px; display: grid; line-height: 1.2; text-align: left;
+}
+.tab b { font-family: var(--font-display); font-stretch: 125%; font-weight: 900; font-size: 18px; }
+.tab small { font-size: 11px; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.tab[aria-selected="true"] small { color: var(--bg); opacity: .75; }
+.mode { display: inline-flex; background: var(--chip); border-radius: 999px; padding: 3px; }
+.mode button {
+  font: inherit; font-size: 13px; font-weight: 700; border: 0; background: transparent; color: var(--muted);
+  padding: 6px 14px; border-radius: 999px; cursor: pointer;
+}
+.mode button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+/* Day content */
+main { padding-block: 18px 40px; }
+.day-head { margin-bottom: 14px; }
+.day-head h2 { font-size: 24px; margin: 0; font-stretch: 118%; }
+.day-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+.stack { display: grid; gap: 12px; }
+
+.block {
+  border: 1px dashed var(--line); border-radius: 12px; padding: 12px 14px;
+}
+.block h3 { margin: 0 0 6px; font-size: 14px; font-weight: 700; }
+.block ol, .block ul { margin: 0; padding-left: 1.3em; }
+.block li { font-size: 14px; }
+.block li span { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-left: 6px; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0;
+  display: grid; gap: 10px;
+}
+.card-top { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+.card-title { min-width: 0; }
+.idx { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: .08em; }
+.card h3 { margin: 0; font-size: 18px; font-weight: 900; line-height: 1.3; }
+.target { font-size: 13px; color: var(--muted); }
+.sets {
+  flex: none; font-family: var(--font-mono); font-weight: 700; font-size: 13px; white-space: nowrap;
+  background: var(--chip); padding: 4px 10px; border-radius: 8px; font-variant-numeric: tabular-nums;
+}
+.card ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.card ol li::marker { font-family: var(--font-mono); color: var(--muted); font-size: 13px; }
+.cue {
+  background: var(--accent-soft); border-radius: 8px; padding: 8px 12px; font-size: 14px;
+}
+.cue b { color: var(--accent); margin-right: 4px; }
+.why { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700;
+  padding: 2px 8px; border-radius: 999px; background: var(--chip); margin-bottom: 4px;
+}
+.badge .mark { width: 10px; height: 10px; }
+.card.locked { opacity: .55; }
+.card.locked .lock-msg { font-size: 13px; color: var(--muted); }
+
+footer { color: var(--muted); font-size: 13px; padding-block: 0 40px; }
+footer p { margin: 0 0 6px; max-width: 60ch; }
+
+@media (max-width: 460px) {
+  .ticket { grid-template-columns: 1fr; }
+  .ticket-stub { border-left: 0; border-top: 2px dashed rgba(255,255,255,.5); grid-auto-flow: column; justify-content: start; gap: 10px; padding: 12px 20px; align-items: baseline; }
+  .ticket-stub b { font-size: 30px; }
+  .phase-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bar .wrap { gap: 8px; }
+  .tab { padding: 5px 10px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: opacity .2s ease; }
+}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="ticket">
+      <div class="ticket-main">
+        <div class="eyebrow">Snowboard · Pre-season</div>
+        <h1>單板體能 12 週</h1>
+        <p>練大腿、臀部、小腿和核心，讓你滑一整天腿也不會抖。每個動作都有健身房和在家（單槓、彈力繩、伏地挺身握把）兩種版本。</p>
+        <div class="schedule" aria-label="每週安排範例">
+          <span><b>一</b>A 日</span><span><b>三</b>B 日</span><span><b>六</b>C 日</span><span>其他天休息或伸展</span>
+        </div>
+      </div>
+      <div class="ticket-stub" aria-hidden="true">
+        <b>12</b><span>WEEKS</span><span>每週 3 練</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="phases">
+  <div class="wrap">
+    <h2>你現在在哪個階段</h2>
+    <div class="phase-row" id="phaseRow" role="group" aria-label="訓練階段"></div>
+    <div class="phase-note" id="phaseNote"></div>
+  </div>
+</section>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="mode" role="group" aria-label="訓練地點">
+      <button type="button" id="mode-gym" data-mode="gym">健身房</button>
+      <button type="button" id="mode-home" data-mode="home">在家</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap" id="day"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>每組最後 2–3 下要覺得吃力。在家太輕鬆時，放慢速度（下 3 秒、停 1 秒）或換粗一級的彈力繩，不要只是做得更快。</p>
+    <p>練習時如果膝蓋、下背有刺痛感就停下來，痠可以，痛不行。</p>
+  </div>
+</footer>
+
+<script>
+const WARMUP = [
+  ['開合跳', '1 分鐘'],
+  ['徒手深蹲', '15 下'],
+  ['弓箭步走', '10 步'],
+  ['彈力繩綁膝蓋側走', '每邊 10 步'],
+  ['跪姿腳踝前推（膝蓋往前超過腳尖）', '每邊 30 秒']
+];
+const COOLDOWN = [
+  ['跪姿弓箭步伸展髖屈肌', '每邊 45 秒'],
+  ['坐姿或站姿伸展大腿後側', '每邊 45 秒'],
+  ['雙手推牆伸展小腿', '每邊 30 秒'],
+  ['仰躺抱膝，放鬆下背', '30 秒']
+];
+
+const PHASES = [
+  { week: 1,  mark: 'green', range: '第 1–4 週',  name: '打底',
+    notes: ['照表上的次數做，重量要留 2–3 下的餘力', '重點是姿勢正確：膝蓋對準腳尖、背打直', '靠牆深蹲先撐到 45–60 秒'] },
+  { week: 5,  mark: 'blue',  range: '第 5–8 週',  name: '加量',
+    notes: ['健身房：每週加一點重量，做到 8–10 下會累', '在家：放慢速度、換粗一級的彈力繩，或每組多 3–5 下', 'A 日加入北歐挺身，C 日間歇加到 10 輪'] },
+  { week: 9,  mark: 'black', range: '第 9–12 週', name: '爆發',
+    notes: ['A、B 日熱身後先做爆發力動作 3 組 × 6 下', '重量維持，不用再往上加', '靠牆深蹲目標撐到 2 分鐘'] },
+  { week: 13, mark: 'taper', range: '出發前 1 週', name: '減量',
+    notes: ['這週只練一次 A 日，組數減半', '其他天做伸展、散步，讓腿完全恢復', '不要在出發前幾天練到很痠'] }
+];
+
+const DAYS = [
+  { id: 'A', when: '週一', title: '雙腳肌力＋後刃', sub: '練出蹲低姿勢需要的大腿與臀部，加上控制刃的小腿。', ex: [
+    { from: 9, name: { gym: '箱跳', home: '深蹲跳' }, sets: '3 × 6', target: '爆發力・壓地形起伏',
+      steps: {
+        gym: ['站在跳箱前約半步，雙腳與肩同寬', '手往後擺、半蹲，接著手往前上擺，用力跳上箱子', '落在箱子上時膝蓋微彎、腳掌全踩，站直後再走下來（不要跳下來）'],
+        home: ['雙腳與肩同寬，蹲到大腿接近平行', '用力往上跳，手臂往上擺', '落地時膝蓋微彎、輕輕落下，停一下再做下一下'] },
+      cue: '落地要安靜，像在吸收雪包，聲音越小越好。' },
+    { from: 1, name: { gym: '槓鈴深蹲', home: '彈力繩深蹲' }, sets: { gym: '4 × 8–10', home: '4 × 15–20' }, target: '大腿前側・臀部',
+      steps: {
+        gym: ['槓鈴放在上背（斜方肌上），雙腳與肩同寬，腳尖微微朝外', '吸氣把核心撐住，臀部往後往下坐，蹲到大腿與地面平行', '腳掌全踩，推地站起來，站起時吐氣'],
+        home: ['雙腳踩住彈力繩中段，兩端繞過肩膀前側握住', '和一般深蹲一樣往下坐，用 3 秒慢慢蹲下去', '1 秒推地站起來，站直時繩子最緊'] },
+      cue: '膝蓋對準腳尖方向，不要往內夾。',
+      why: '這就是你在板上的基本姿勢，大腿撐得住，滑一整天才不會抖。' },
+    { from: 1, name: { gym: '俯臥腿彎舉機', home: '毛巾滑行腿彎舉' }, sets: '3 × 10–12', target: '大腿後側（取代硬舉）',
+      steps: {
+        gym: ['趴在機器上，滾筒放在腳踝上方、膝蓋剛好在椅墊邊緣外', '腳跟往臀部方向捲到最高', '用 3 秒慢慢放回去'],
+        home: ['仰躺屈膝，兩個腳跟踩在毛巾上（木地板或磁磚）', '抬起臀部，讓肩膀到膝蓋成一直線', '腳跟往前滑到腿快打直，再用大腿後側拉回來'] },
+      cue: { gym: '臀部貼住椅墊，不要翹起來借力。', home: '整組做完之前，臀部都不要落地。' } },
+    { from: 5, name: '北歐挺身', sets: '2 × 5', target: '大腿後側・保護膝蓋',
+      steps: {
+        gym: ['跪在軟墊上，腳跟卡在器材下方，或請人壓住腳踝', '身體從膝蓋到頭成一直線，雙手放胸前', '用大腿後側撐住，盡量慢慢往前倒，撐不住時雙手接地，推回起始位置'],
+        home: ['跪在瑜伽墊上，腳跟塞進沙發底下（確認沙發不會移動）', '身體從膝蓋到頭成一直線，雙手放胸前', '盡量慢慢往前倒，撐不住時雙手接地，推回起始位置'] },
+      cue: '重點是倒得慢，不是倒得多。剛開始只倒 20 公分也可以。',
+      why: '大腿後側變強，摔倒或卡刃時膝蓋比較不容易受傷。' },
+    { from: 1, name: { gym: '槓鈴臀推', home: '單腳臀橋＋彈力繩' }, sets: { gym: '3 × 10–12', home: '3 × 每邊 12' }, target: '臀部',
+      steps: {
+        gym: ['上背靠在椅凳邊緣，槓鈴放在髖部（記得加護墊）', '腳跟推地，把髖往上推到肩膀到膝蓋成一直線', '頂端用力夾臀停 1 秒，再慢慢放下'],
+        home: ['仰躺，彈力繩綁在膝蓋上方', '一腳屈膝踩地，另一腳伸直抬起', '用踩地那隻腳的腳跟把臀部推高，頂端停 1 秒'] },
+      cue: { gym: '下巴微收、眼睛看前方，不要拱腰。', home: '膝蓋一直往外撐住彈力繩。' } },
+    { from: 1, name: { gym: '站姿提踵機', home: '樓梯單腳提踵' }, sets: { gym: '3 × 15–20', home: '3 × 每腳 15' }, target: '小腿後側・前刃',
+      steps: {
+        gym: ['肩膀頂住護墊，前腳掌踩在踏板邊緣', '腳跟往下放到底，感覺小腿被拉長', '用力墊腳到最高，停 1 秒'],
+        home: ['單腳的前腳掌站在樓梯邊緣，手扶牆保持平衡', '腳跟往下放到底', '墊腳到最高，停 1 秒，再慢慢放下'] },
+      cue: '慢慢放下，不要用彈的。',
+      why: '前刃要靠小腿往下壓，小腿沒力就很難立刃。' },
+    { from: 1, name: { gym: 'Tib bar 抬腳尖', home: '靠牆抬腳尖' }, sets: '3 × 20', target: '小腿前側・後刃',
+      steps: {
+        gym: ['坐在椅凳邊緣，把 tib bar 掛在腳背上（健身房沒有就做在家版本）', '腳跟不動，腳尖往上勾到最高', '慢慢放下'],
+        home: ['背靠牆站，腳跟離牆約 30 公分', '腳跟不動，兩邊腳尖一起往上勾到最高', '慢慢放下，連續做'] },
+      cue: '小腿前側有灼熱感就對了。',
+      why: '後刃要把腳尖勾起來，這塊很少人練，後刃滑久了最容易痠。' },
+    { from: 1, name: { gym: '繩索 Pallof press', home: '彈力繩 Pallof press' }, sets: '3 × 每邊 12', target: '核心抗旋轉',
+      steps: {
+        gym: ['把繩索調到胸口高度，側身站在旁邊', '雙手握住把手放在胸前，往側邊走一步讓繩子有張力', '把手往正前方推直，停 2 秒，再收回胸前'],
+        home: ['彈力繩綁在單槓或門把上，高度約在胸口', '側身站，雙手握繩放在胸前，往旁邊走到繩子拉緊', '往正前方推直，停 2 秒，再收回'] },
+      cue: '身體不能被繩子拉著轉。',
+      why: '這就是換刃時穩住上半身的感覺。' }
+  ]},
+  { id: 'B', when: '週三', title: '單腳＋平衡＋換刃', sub: '單板兩腳出力不平均，這天練單腳穩定和左右移動。', ex: [
+    { from: 9, name: { gym: '側向跳過障礙', home: '側向跳線' }, sets: '3 × 每邊 6', target: '爆發力・換刃反應',
+      steps: {
+        gym: ['在旁邊放一個低的障礙（例如槓片或軟墊）', '雙腳併攏、半蹲，往側邊跳過去', '落地站穩停一下，再跳回來'],
+        home: ['在地上用膠帶或毛巾當一條線', '雙腳併攏、半蹲，往側邊跳過線', '落地膝蓋微彎站穩，再跳回來'] },
+      cue: '落地時膝蓋不要往內倒。' },
+    { from: 1, name: { gym: '啞鈴保加利亞分腿蹲', home: '徒手保加利亞分腿蹲' }, sets: { gym: '3 × 每腳 10', home: '3 × 每腳 15' }, target: '單腳大腿・臀部',
+      steps: {
+        gym: ['雙手各拿一個啞鈴，後腳腳背放在椅凳上，前腳往前一大步', '身體直直往下沉，前腳大腿接近與地面平行', '用前腳的腳跟推地站起來'],
+        home: ['後腳腳背放在沙發或椅子上，前腳往前一大步', '用 3 秒直直往下沉，前腳大腿接近平行', '用前腳腳跟推起來'] },
+      cue: '重心放在前腳，後腳只是幫忙平衡。' },
+    { from: 1, name: { gym: '高腳杯側弓箭步', home: '徒手側弓箭步' }, sets: '3 × 每邊 10', target: '大腿內外側・重心轉移',
+      steps: {
+        gym: ['雙手捧一個啞鈴在胸前，雙腳打開約兩倍肩寬', '重心移到一側，那邊臀部往後坐，另一腳伸直', '推地回到中間，換邊'],
+        home: ['雙腳打開約兩倍肩寬，雙手放胸前', '重心移到一側，臀部往後坐，另一腳伸直', '推回中間，換邊'] },
+      cue: '兩邊腳掌都踩平，像換刃時把重心左右移過去。' },
+    { from: 1, name: { gym: '髖外展機', home: '彈力繩側走＋蚌殼式' }, sets: { gym: '3 × 15–20', home: '各 3 × 15' }, target: '臀中肌・膝蓋穩定',
+      steps: {
+        gym: ['坐進機器，護墊放在膝蓋外側', '膝蓋往外推開到最大，停 1 秒', '慢慢收回，不要讓重量片撞在一起'],
+        home: ['彈力繩綁在膝蓋上方，半蹲往側邊走 15 步，再走回來', '接著側躺屈膝，兩個腳跟併攏', '腳跟不分開，把上面的膝蓋打開，再慢慢合起來'] },
+      cue: '骨盆不要跟著晃。',
+      why: '臀中肌有力，膝蓋就不容易往內夾，轉彎更穩。' },
+    { from: 1, name: { gym: 'BOSU 球深蹲', home: '軟墊平衡深蹲' }, sets: '3 × 12', target: '平衡・腳踝控制',
+      steps: {
+        gym: ['站上 BOSU 球，新手先圓面朝上，熟練後翻過來站平面', '雙手往前伸，慢慢蹲到大腿接近平行', '站起來時保持穩定，不要晃'],
+        home: ['站在對折的枕頭或捲起來的瑜伽墊上', '雙手往前伸，慢慢往下蹲', '站起來時保持穩定'] },
+      cue: '腳掌和腳踝會一直在微調，這就是站在板上的感覺。' },
+    { from: 1, name: { gym: '啞鈴登階', home: '椅子登階' }, sets: '3 × 每腳 10', target: '單腳穩定（取代單腳硬舉）',
+      steps: {
+        gym: ['雙手拿啞鈴，一腳整個踩上跳箱或椅凳', '用上面那隻腳發力站上去，下面那隻腳不要蹬地', '在頂端單腳站穩 2 秒，再慢慢走下來'],
+        home: ['找一張靠牆、不會滑的椅子，或用樓梯', '一腳整個踩上去，用那隻腳發力站起來', '頂端單腳站穩 2 秒，再慢慢下來'] },
+      cue: '下來的過程要控制住，比上去更重要。' },
+    { from: 1, name: { gym: '繩索伐木', home: '彈力繩伐木' }, sets: '3 × 每邊 12', target: '核心旋轉',
+      steps: {
+        gym: ['繩索調到高處，側身站，雙手一起握住把手', '從一側肩膀上方，斜斜往下拉到另一側膝蓋外側', '慢慢回到起始位置'],
+        home: ['彈力繩綁在單槓上，側身站，雙手握住', '從肩膀上方斜拉到另一側膝蓋外側', '慢慢回到起始位置'] },
+      cue: '轉的力量來自髖和核心，手臂只是延伸。膝蓋微彎。',
+      why: '轉彎時上半身帶動板子，用的就是這個力量。' }
+  ]},
+  { id: 'C', when: '週六', title: '心肺＋核心', sub: '滑雪是一段高強度、一段休息，用間歇最接近那個節奏。', ex: [
+    { from: 1, name: { gym: '飛輪或划船機間歇', home: '波比跳／高抬腿間歇' }, sets: { gym: '8–10 輪', home: '8–10 輪' }, target: '心肺耐力',
+      steps: {
+        gym: ['先輕鬆踩 3 分鐘熱身', '30 秒全力，喘到說不出完整句子', '60 秒非常輕鬆地踩，接著下一輪'],
+        home: ['波比跳：蹲下、雙手撐地，雙腳往後跳成伏地挺身姿勢', '雙腳跳回、站起來往上跳，連續做 30 秒', '休息 60 秒，接著下一輪。家裡有樓梯的話，爬樓梯也可以'] },
+      cue: '30 秒一趟滑下來，60 秒坐纜車上去。',
+      why: '高海拔加上連續滑，心肺會比想像中更吃緊。' },
+    { from: 1, name: '單槓懸吊舉腿', sets: '3 × 10', target: '前側核心',
+      steps: ['雙手握住單槓懸吊，肩膀往下壓、不要聳肩', '用腹部把雙腿抬到與地面平行，剛開始可以屈膝抬', '慢慢放下，不要盪'],
+      cue: '身體開始晃就停一下，晃停了再做下一下。' },
+    { from: 1, name: { gym: '健腹輪', home: '握把棒式' }, sets: { gym: '3 × 8–10', home: '3 × 30–45 秒' }, target: '核心抗伸展',
+      steps: {
+        gym: ['跪在墊子上，雙手握住健腹輪', '慢慢往前推，把身體拉長到還能控制的距離', '用腹部把輪子拉回來'],
+        home: ['雙手握住伏地挺身握把，撐成高棒式', '頭到腳跟成一直線', '想加難度就輪流單手摸對側肩膀'] },
+      cue: '腰不能往下塌。' },
+    { from: 1, name: '側棒式', sets: '3 × 每邊 30–45 秒', target: '側核心',
+      steps: ['側躺，手肘放在肩膀正下方', '抬起臀部，讓身體成一直線', '上面那隻手插腰，或往天花板伸直'],
+      cue: '臀部往前推，不要往後坐。' },
+    { from: 1, name: { gym: '45° 背伸展機', home: '超人式' }, sets: '3 × 12', target: '下背・臀部',
+      steps: {
+        gym: ['髖骨卡在墊子邊緣，腳跟勾在護墊下', '身體往下彎', '用臀部和大腿後側把身體拉回一直線，不要往後拱過頭'],
+        home: ['趴在墊子上，雙手往前伸', '手腳同時抬離地面，停 2 秒', '慢慢放下'] },
+      cue: '用臀部出力，不是用腰。',
+      why: '滑雪時一直微微彎腰，下背沒練很容易痠。' },
+    { from: 1, name: '靠牆深蹲', sets: '2 × 撐到力竭', target: '大腿耐力收尾',
+      steps: ['背貼著牆，慢慢往下滑到膝蓋約 90 度', '膝蓋在腳踝正上方，不要超過腳尖', '撐住，正常呼吸'],
+      cue: '目標：第 12 週撐到 2 分鐘。' }
+  ]}
+];
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+let mode = store.get('sb-mode', 'gym');
+let dayId = store.get('sb-day', 'A');
+let phase = Number(store.get('sb-phase', '1'));
+if (!['gym', 'home'].includes(mode)) mode = 'gym';
+if (!DAYS.some(d => d.id === dayId)) dayId = 'A';
+if (!PHASES.some(p => p.week === phase)) phase = 1;
+
+const pick = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v[mode] : v;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const phaseOf = w => PHASES.filter(p => p.week <= w).pop();
+
+function renderPhases() {
+  const row = document.getElementById('phaseRow');
+  row.innerHTML = PHASES.map(p => `
+    <button type="button" class="phase-btn" id="phase-${p.week}" data-week="${p.week}" aria-pressed="${p.week === phase}">
+      <span class="mark ${p.mark}" aria-hidden="true"></span>
+      <strong>${p.name}</strong><small>${p.range}</small>
+    </button>`).join('');
+  const cur = PHASES.find(p => p.week === phase);
+  document.getElementById('phaseNote').innerHTML = `<ul>${cur.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>`;
+}
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = DAYS.map(d => `
+    <button type="button" role="tab" class="tab" id="tab-${d.id}" data-day="${d.id}" aria-selected="${d.id === dayId}">
+      <b>${d.id}</b><small>${d.when}</small>
+    </button>`).join('');
+  document.querySelectorAll('.mode button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === mode));
+}
+
+function renderDay() {
+  const d = DAYS.find(x => x.id === dayId);
+  let n = 0;
+  const cards = d.ex.map(e => {
+    const locked = phase < 13 && e.from > phase;
+    const p = phaseOf(e.from);
+    const badge = e.from > 1 ? `<div class="badge"><span class="mark ${p.mark}" aria-hidden="true"></span>第 ${e.from} 週起</div>` : '';
+    n++;
+    const steps = pick(e.steps);
+    const why = e.why ? `<div class="why">${esc(e.why)}</div>` : '';
+    return `
+      <article class="card${locked ? ' locked' : ''}">
+        <div class="card-top">
+          <div class="card-title">
+            ${badge}
+            <div class="idx">${d.id}${String(n).padStart(2, '0')}</div>
+            <h3>${esc(pick(e.name))}</h3>
+            <div class="target">${esc(e.target)}</div>
+          </div>
+          <div class="sets">${esc(pick(e.sets))}</div>
+        </div>
+        ${locked ? `<div class="lock-msg">目前階段還不用做，到第 ${e.from} 週再加進來。</div>` : ''}
+        <ol>${steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+        <div class="cue"><b>重點</b>${esc(pick(e.cue))}</div>
+        ${why}
+      </article>`;
+  }).join('');
+
+  const taper = phase === 13 ? `<div class="block"><h3>出發前 1 週</h3><ul><li>只練一次 A 日，每個動作組數減半。B、C 日改成伸展和散步。</li></ul></div>` : '';
+
+  document.getElementById('day').innerHTML = `
+    <div class="day-head">
+      <h2>${d.id} 日・${esc(d.title)}</h2>
+      <p>${esc(d.sub)}</p>
+    </div>
+    <div class="stack">
+      ${taper}
+      <div class="block"><h3>熱身 10 分鐘</h3><ul>${WARMUP.map(([a, b]) => `<li>${esc(a)}<span>${esc(b)}</span></li>`).join('')}</ul></div>
+      ${cards}
+      <div class="block"><h3>收操伸展</h3><ul>${COOLDOWN.map(([a, b]) => `<li>${esc(a)}<span>${esc(b)}</span></li>`).join('')}</ul></div>
+    </div>`;
+}
+
+function renderAll() { renderPhases(); renderTabs(); renderDay(); }
+
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('button');
+  if (!t) return;
+  if (t.dataset.day) { dayId = t.dataset.day; store.set('sb-day', dayId); renderTabs(); renderDay(); window.scrollTo({ top: document.querySelector('.bar').offsetTop - 1, behavior: 'auto' }); }
+  else if (t.dataset.mode) { mode = t.dataset.mode; store.set('sb-mode', mode); renderTabs(); renderDay(); }
+  else if (t.dataset.week) { phase = Number(t.dataset.week); store.set('sb-phase', String(phase)); renderPhases(); renderDay(); }
+});
+
+renderAll();
+</script>
+
+</body></html>
